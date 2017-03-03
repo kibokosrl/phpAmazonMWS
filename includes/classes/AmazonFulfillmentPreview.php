@@ -40,7 +40,7 @@ class AmazonFulfillmentPreview extends AmazonOutboundCore{
      * @param string $config [optional] <p>An alternate config file to set. Used for testing.</p>
      */
     public function __construct($s = null, $mock = false, $m = null, $config = null) {
-        parent::__construct($s, $mock, $m, $config);
+        parent::__construct($s, $mock, $m, $config, $override);
         
         $this->options['Action'] = 'GetFulfillmentPreview';
     }

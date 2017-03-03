@@ -43,7 +43,7 @@ class AmazonReport extends AmazonReportsCore{
      * @param string $config [optional] <p>An alternate config file to set. Used for testing.</p>
      */
     public function __construct($s = null, $id = null, $mock = false, $m = null, $config = null) {
-        parent::__construct($s, $mock, $m, $config);
+        parent::__construct($s, $mock, $m, $config, $override);
         include($this->env);
         
         if($id){

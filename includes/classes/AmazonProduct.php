@@ -42,7 +42,7 @@ class AmazonProduct extends AmazonProductsCore{
      * @param string $config [optional] <p>An alternate config file to set. Used for testing.</p>
      */
     public function __construct($s = null, $data = null, $mock = false, $m = null, $config = null){
-        parent::__construct($s, $mock, $m, $config);
+        parent::__construct($s, $mock, $m, $config, $override);
         
         if ($data){
             $this->loadXML($data);
