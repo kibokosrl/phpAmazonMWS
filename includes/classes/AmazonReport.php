@@ -42,7 +42,7 @@ class AmazonReport extends AmazonReportsCore{
      * @param array|string $m [optional] <p>The files (or file) to use in Mock Mode.</p>
      * @param string $config [optional] <p>An alternate config file to set. Used for testing.</p>
      */
-    public function __construct($s = null, $id = null, $mock = false, $m = null, $config = null) {
+    public function __construct($s = null, $id = null, $mock = false, $m = null, $config = null, $override = []) {
         parent::__construct($s, $mock, $m, $config, $override);
         include($this->env);
         
