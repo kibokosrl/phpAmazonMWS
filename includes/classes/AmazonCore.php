@@ -125,12 +125,12 @@ abstract class AmazonCore{
      * from the list to use as a response. See <i>setMock</i> for more information.</p>
      * @param string $config [optional] <p>An alternate config file to set. Used for testing.</p>
      */
-    protected function __construct($s = null, $mock = false, $m = null, $config = null){
+    protected function __construct($s = null, $mock = false, $m = null, $config = null, $override = []){
         if (is_null($config)){
             $config = __DIR__.'/../../amazon-config.php';
         }
         $this->setConfig($config);
-        $this->setStore($s);
+        $this->setStore($s, $override);
         $this->setMock($mock,$m);
         
         $this->env=__DIR__.'/../../environment.php';
@@ -402,7 +402,7 @@ abstract class AmazonCore{
      * This parameter is not required if there is only one store defined in the config file.</p>
      * @throws Exception If the file can't be found.
      */
-    public function setStore($s=null){
+    public function setStore($s=null, $override = []){
         if (file_exists($this->config)){
             include($this->config);
         } else {
@@ -419,6 +419,9 @@ abstract class AmazonCore{
         
         if(array_key_exists($s, $store)){
             $this->storeName = $s;
+    
+            array_merge($store[$s],$override);
+            
             if(array_key_exists('merchantId', $store[$s])){
                 $this->options['SellerId'] = $store[$s]['merchantId'];
             } else {
