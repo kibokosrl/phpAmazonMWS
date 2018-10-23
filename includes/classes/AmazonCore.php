@@ -106,7 +106,8 @@ abstract class AmazonCore{
     protected $logpath;
     protected $env;
     protected $rawResponses = array();
-    
+    protected $disableSslVerify = false;
+
     /**
      * AmazonCore constructor sets up key information used in all Amazon requests.
      * 
@@ -570,7 +571,7 @@ abstract class AmazonCore{
         } else {
             throw new InvalidArgumentException('Invalid time input given');
         }
-        return date('Y-m-d\TH:i:sO',$time-120);
+        return date('c', $time-120);
             
     }
     
@@ -614,7 +615,7 @@ abstract class AmazonCore{
         $this->log("Making request to Amazon: ".$this->options['Action']);
         $response = $this->fetchURL($url,$param);
         
-        while ($response['code'] == '503' && $this->throttleStop==false){
+        while (isset($response['code']) && $response['code'] == '503' && $this->throttleStop==false){
             $this->sleep();
             $response = $this->fetchURL($url,$param);
         }
@@ -749,7 +750,24 @@ abstract class AmazonCore{
             $this->tokenFlag = false;
         }
     }
-    
+
+    /**
+     * Disables or enables the use of SSL verification when sending requests to Amazon.
+     *
+     * This is <b>not recommended</b> for a production environment,
+     * as it is a <b>security risk</b> and can put merchant credentials in danger.
+     * However, this option is still available in case it is needed.
+     *
+     * Use at your own risk.
+     * @param boolean $b [optional] <p>Defaults to <b>TRUE</b>.</p>
+     */
+    public function setDisableSslVerify($b = true) {
+        $this->disableSslVerify = $b;
+        if ($b) {
+            $this->log('Caution: Disabling SSL verification.', 'Warning');
+        }
+    }
+
     //Functions from Athena:
        /**
         * Get url or send POST data
@@ -767,11 +785,16 @@ abstract class AmazonCore{
         $ch = curl_init();
         
         curl_setopt($ch,CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch,CURLOPT_TIMEOUT, 0);
+        curl_setopt($ch, CURLOPT_TIMEOUT, ini_get('default_socket_timeout'));
         curl_setopt($ch,CURLOPT_FORBID_REUSE, 1);
         curl_setopt($ch,CURLOPT_FRESH_CONNECT, 1);
         curl_setopt($ch,CURLOPT_HEADER, 1);
         curl_setopt($ch,CURLOPT_URL,$url);
+        if ($this->disableSslVerify) {
+            $this->log('Caution: Request being sent without SSL verification.', 'Warning');
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        }
         if (!empty($param)){
             if (!empty($param['Header'])){
                 curl_setopt($ch,CURLOPT_HTTPHEADER, $param['Header']);
